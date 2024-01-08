@@ -117,3 +117,77 @@ DoSomethingWithString(MyString(3))
 
 으로 변환되어서 컴파일 됩니다. 즉, 사용자가 의도하지 않은 암시적 변환이 일어나게 됩니다.
 */
+
+/*
+하지만 다행이도 C++ 에서는 원하지 않는 암시적 변환을 할 수 없도록 컴파일러에게 명시할 수 있습니다. 
+바로 explicit 키워드를 통해 말이지요.
+
+#include <iostream>
+
+class MyString 
+{
+  char* string_content;  // 문자열 데이터를 가리키는 포인터
+  int string_length;     // 문자열 길이
+
+  int memory_capacity;
+
+ public:
+  explicit MyString(int capacity);  // capacity 만큼 미리 할당함. (explicit 키워드에 주목)
+
+  // 문자열로 부터 생성
+  MyString(const char* str);
+
+  // 복사 생성자
+  MyString(const MyString& str);
+
+  ~MyString();
+
+  int length() const;
+  int capacity() const;
+};
+
+// .. (생략) ..
+
+void DoSomethingWithString(MyString s) 
+{
+  // Do something...
+}
+
+int main() 
+{
+  DoSomethingWithString(3);
+}
+
+컴파일 오류
+
+위와 같이 DoSomethingWithString(3) 부분에서 컴파일 오류가 발생함을 알 수 있습니다. 
+그 이유는 int capacity 를 인자로 받는 생성자가
+
+// capacity 만큼 미리 할당함. (explicit 키워드에 주목)
+explicit MyString(int capacity);
+
+위와 같이 explicit 으로 되어 있기 때문이지요. 
+explicit 은 implicit 의 반대말로, 명시적 이라는 뜻을 가지고 있습니다.
+
+컴파일러에서 이 MyString 생성자를 explicit 으로 선언한다면 이 생성자를 이용한 암시적 변환을 수행하지 못하게 막을 수 있습니다. 
+실제 컴파일 오류 메세지를 보아도, int 에서 MyString 으로 변환할 수 없다고 나옵니다.
+
+explicit 은 또한 해당 생성자가 복사 생성자의 형태로도 호출되는 것을 막게 됩니다. 예를 들어서;
+
+MyString s = "abc";  // MyString s("abc")
+MyString s = 5;      // MyString s(5)
+
+MyString(int capacity); 에 explicit 이 없을 경우, 위 코드는 잘 작동합니다. 
+왜냐하면 컴파일러가 알아서 적당한 생성자를 골라서 호출되기 때문이지요. 하지만 생각해보면
+
+MyString s = 5;  // MyString s(5)
+
+는 마치 s 에 5 를 대입하고 있다는 의미를 전달하게 됩니다. 
+실제로는 capacity 를 5 로 해주는 것인대도 말이지요. 
+따라서, explicit 으로 MyString(int capacity) 를 설정하면
+
+MyString s(5);   // 허용
+MyString s = 5;  // 컴파일 오류!
+
+위와 같이 명시적으로 생성자를 부를 때 에만 허용할 수 있게 됩니다.
+*/
