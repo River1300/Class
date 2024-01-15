@@ -191,3 +191,62 @@ MyString s = 5;  // 컴파일 오류!
 
 위와 같이 명시적으로 생성자를 부를 때 에만 허용할 수 있게 됩니다.
 */
+
+/*
+mutable
+
+const 함수 내부에서는 멤버 변수들의 값을 바꾸는 것이 불가능 합니다. 
+하지만, 만약에 멤버 변수를 mutable 로 선언하였다면 const 함수에서도 이들 값을 바꿀 수 있습니다.
+
+#include <iostream>
+
+class A 
+{
+  int data_;
+
+ public:
+  A(int data) : data_(data) {}
+  void DoSomething(int x) const 
+  {
+    data_ = x;  // 불가능!
+  }
+
+  void PrintData() const { std::cout << "data: " << data_ << std::endl; }
+};
+
+int main() 
+{
+  A a(10);
+  a.DoSomething(3);
+  a.PrintData();
+}
+
+위와 같이 const 함수 안에서 멤버 변수에 값을 대입한다는 오류를 볼 수 있습니다. 
+하지만 data_ 를 mutable 로 선언하면 어떨까요.
+
+#include <iostream>
+
+class A 
+{
+  mutable int data_;
+
+ public:
+  A(int data) : data_(data) {}
+  void DoSomething(int x) const 
+  {
+    data_ = x;  // 가능!
+  }
+
+  void PrintData() const { std::cout << "data: " << data_ << std::endl; }
+};
+
+int main() 
+{
+  A a(10);
+  a.DoSomething(3);
+  a.PrintData();
+}
+
+위 처럼 data_ 의 값이 const 함수 안에서 바뀐 것을 알 수 있습니다.
+그런데 생각해보면 mutable 을 쓸 바에는 차라리 그냥 DoSomething() 에서 const 를 떼어버리는게 낫지 않을까요? 왜 mutable 키워드를 만들었을까요?
+*/
